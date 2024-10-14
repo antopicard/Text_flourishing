@@ -1,0 +1,56 @@
+% Paramètres pour le modèle
+param.nbData = 100; % Nombre de points de données
+param.nbVarX = 2; % Dimensions de l'état (x et y)
+param.nbVarPos = 1; % Dimension de l'entrée (contrôle)
+param.nbMaxIter = 100; % Nombre maximum d'itérations
+param.nbMinIter = 10; % Nombre minimum d'itérations
+param.r = 1e-2; % Pénalité sur le contrôle
+
+% Ellipse 1
+a1 = 2; % Demi-grand axe
+b1 = 1; % Demi-petit axe
+t = linspace(0, 2*pi, param.nbData);
+ellipse1 = [a1 * cos(t); b1 * sin(t)]; % Coordonnées de l'ellipse 1
+
+% Ellipse 2
+a2 = 1.5; % Demi-grand axe
+b2 = 0.5; % Demi-petit axe
+ellipse2 = [a2 * cos(t) + 4; b2 * sin(t)]; % Coordonnées de l'ellipse 2
+
+% État initial sur l'ellipse 1
+x = ellipse1(:, 1); % Position initiale
+u = zeros(param.nbVarPos * (param.nbData - 1), 1); % Commandes initiales
+
+% Boucle d'itération pour le mouvement
+for n = 1:param.nbMaxIter
+    % Évolution du système : ici, la trajectoire suit une forme d'ellipse
+    for i = 1:param.nbData - 1
+        % Système dynamique
+        if i <= param.nbData/2
+            x(:, i + 1) = ellipse1(:, i); % Première moitié sur ellipse 1
+        else
+            x(:, i + 1) = ellipse2(:, i - param.nbData/2); % Deuxième moitié sur ellipse 2
+        end
+    end
+
+    % Coût et mise à jour des commandes
+    % (ici, on peut ajouter une logique de coût, si nécessaire)
+
+    % Condition d'arrêt (peut être ajustée)
+    if n > param.nbMinIter && norm(u) < 1e-2
+        break; % Arrêter si la mise à jour est petite
+    end
+end
+
+% Tracer les ellipses et la trajectoire
+figure;
+hold on;
+plot(ellipse1(1, :), ellipse1(2, :), 'b--', 'LineWidth', 2); % Ellipse 1
+plot(ellipse2(1, :), ellipse2(2, :), 'r--', 'LineWidth', 2); % Ellipse 2
+plot(x(1, :), x(2, :), 'k-', 'LineWidth', 2); % Trajectoire
+title('Trajectoire entre deux ellipses');
+xlabel('X');
+ylabel('Y');
+axis equal;
+grid on;
+hold off;

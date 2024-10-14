@@ -1,0 +1,61 @@
+function optimize_trajectory()
+    % Given initial conditions of the planet
+    r0 = [x0, y0];    % Initial position
+    v0 = [vx, vy];    % Initial velocity
+    r_final = [px, py]; % Target position
+    v_final = [vfx, vfy]; % Target velocity (direction)
+
+    % Initial guess for the focus and its mass
+    r_foyer_guess = [x0+1000, y0+1000];  % Initial guess for focal point position
+    M_foyer_guess = 5.972e24;  % Initial guess for mass (Earth's mass)
+    
+    % Optimization function
+    objective = @(params) trajectory_error(params, r0, v0, r_final, v_final);
+    
+    % Optimization options
+    options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'sqp');
+    
+    % Run the optimization to find the best focal point and mass
+    params_opt = fmincon(objective, [r_foyer_guess, M_foyer_guess], [], [], [], [], [], [], [], options);
+    
+    % Extract optimal parameters
+    r_foyer_opt = params_opt(1:2);
+    M_foyer_opt = params_opt(3);
+    
+    % Display results
+    fprintf('Optimal focal point: (%.2f, %.2f)\n', r_foyer_opt(1), r_foyer_opt(2));
+    fprintf('Optimal mass: %.2e\n', M_foyer_opt);
+    
+    % Simulate and plot the optimal trajectory
+    simulate_trajectory(r0, v0, r_foyer_opt, M_foyer_opt);
+end
+
+function error = trajectory_error(params, r0, v0, r_final, v_final)
+    % Extract the focal point and mass from the parameters
+    r_foyer = params(1:2);
+    M_foyer = params(3);
+    
+    % Simulate the trajectory with the current parameters
+    [r_traj, v_traj] = simulate_trajectory(r0, v0, r_foyer, M_foyer);
+    
+    % Compute the error between the final simulated position and the target
+    position_error = norm(r_traj - r_final);
+    
+    % Compute the error between the final simulated velocity and the target direction
+    velocity_error = norm(v_traj - v_final);
+    
+    % Total error is a weighted sum of position and velocity errors
+    error = position_error + 10 * velocity_error;
+end
+
+function [r_traj, v_traj] = simulate_trajectory(r0, v0, r_foyer, M_foyer)
+    % Simulate the planet's trajectory given the initial conditions and focus
+    % Use basic orbital mechanics equations (simplified for the problem)
+    
+    % Placeholder trajectory simulation (implement detailed physics here)
+    r_traj = r0;  % Assume straight line for now (replace with proper orbital calculation)
+    v_traj = v0;  % Placeholder velocity (replace with actual result)
+    
+    % Update the trajectory until it reaches the vicinity of the target point
+    % [Your orbital mechanics code goes here]
+end
