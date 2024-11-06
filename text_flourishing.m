@@ -1,5 +1,4 @@
 % Add the necessary MATLAB commands to run the code
-addpath('C:/Users/anton/Documents/GitHub/Text_flourishing');
 clc;
 clear;
 close all;
